@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+    <PackageReference Include="ZZH.Metrics.ServiceCollection.Extensions" Version="1.0.0" />
+    <PackageReference Include="ZZH.ZipKinClient.Service" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KB.ContractModel\KP.ContractModel.csproj" />
+    <ProjectReference Include="..\KB.Entity\KP.Entity.csproj" />
+    <ProjectReference Include="..\KB.Infrastructure\KP.Infrastructure.csproj" />
+    <ProjectReference Include="..\KB.IRepository\KP.IRepository.csproj" />
+    <ProjectReference Include="..\KB.IService\KP.IService.csproj" />
+    <ProjectReference Include="..\KB.MongoDbRepository\KP.MongoDbRepository.csproj" />
+    <ProjectReference Include="..\KB.MySqlRepository\KP.MySqlRepository.csproj" />
+    <ProjectReference Include="..\KB.PostgreSqlRepository\KP.PostgreSqlRepository.csproj" />
+    <ProjectReference Include="..\KB.Service\KP.Service.csproj" />
+    <ProjectReference Include="..\KB.SqlServerRepository\KP.SqlServerRepository.csproj" />
+    <ProjectReference Include="..\KB.ThirdParty.ESB\KP.ThirdParty.ESB.csproj" />
+    <ProjectReference Include="..\KB.Tool\KP.Tool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="nlog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
