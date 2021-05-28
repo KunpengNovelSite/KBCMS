@@ -38,67 +38,56 @@ namespace KB.WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // add metrics
-            services.AddZzhMetrics(Configuration);
-
-            services.AddApiVersioning(o => {
+            services.AddApiVersioning(o =>
+            {
                 o.ReportApiVersions = true;
                 o.AssumeDefaultVersionWhenUnspecified = true;
                 o.DefaultApiVersion = new ApiVersion(1, 0);
             });
-            services.AddMvc().AddMvcOptions(option => 
+            services.AddMvc().AddMvcOptions(option =>
             {
                 option.Filters.Add<LogAttribute>();
             })
             .AddFluentValidation(fv =>
             {
-                fv.RegisterValidatorsFromAssemblyContaining<Startup>();  
+                fv.RegisterValidatorsFromAssemblyContaining<Startup>();
                 // 当前程序集 https://fluentvalidation.net/aspnet#asp-net-core
-            })
-            .AddZzhMertrics();
+            });
 
             services.AddHttpContextAccessor();
 
-            #region Eureka的服务发现和注册(不再使用了）
-            //// register service discovery
-            //services.AddDiscoveryClient(Configuration)
-            //        .AddTransient<DiscoveryHttpMessageHandler>();
+            //services.AddRedisSentinelCache(Configuration);  // 哨兵模式
+            //services.AddRedisCache(Configuration);//普通模式
 
-            //// eg:
-            //services.AddHttpClient();
-            //services.AddHttpClient("discovery-sample")
-            //        .AddHttpMessageHandler<DiscoveryHttpMessageHandler>()
-            //        .AddTypedClient<Controllers.DiscoverySampleController>();
+            // add dapper MySql
+            services.AddDapperMySql<MySqlRepository.Context.KBActiveDbContext>("KB_mysql");
+            services.AddMySqlRepository();
 
-            // add redis
-            //services.AddRedisCache(Configuration);
+            #region 数据库连接-framework-demo
+            //// only for test
+            //// 实际开发中只能使用 SqlServer 或 MySQL、PostgreSQL其中一个
+            //if (string.Equals(Configuration["dbmodel"], "MySql", System.StringComparison.OrdinalIgnoreCase))
+            //{
+            //    // add dapper MySql
+            //    services.AddDapperMySql<MySqlRepository.Context.KBActiveDbContext>("KB_mysql");
+            //    services.AddMySqlRepository();
+            //}
+            //else
+            //{
+            //    if(string.Equals(Configuration["dbmodel"], "PostgreSQL", System.StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        //add dapper PostgreSQL
+            //        services.AddDapperPostgreSql<PostgreSqlRepository.Context.KBActiveDbContext>("KB_postgresql");
+            //        services.AddPostgreSqlRepository();
+            //    }
+            //    else
+            //    {
+            //        // add dapper SqlServer
+            //        services.AddDapperSqlServer<SqlServerRepository.Context.KBActiveDbContext>("KB");
+            //        services.AddSqlServerRepository();
+            //    }               
+            //}
             #endregion
-
-            services.AddRedisSentinelCache(Configuration);  // 哨兵模式
-
-            // only for test
-            // 实际开发中只能使用 SqlServer 或 MySQL、PostgreSQL其中一个
-            if (string.Equals(Configuration["dbmodel"], "MySql", System.StringComparison.OrdinalIgnoreCase))
-            {
-                // add dapper MySql
-                services.AddDapperMySql<MySqlRepository.Context.KBActiveDbContext>("KB_mysql");
-                services.AddMySqlRepository();
-            }
-            else
-            {
-                if(string.Equals(Configuration["dbmodel"], "PostgreSQL", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    //add dapper PostgreSQL
-                    services.AddDapperPostgreSql<PostgreSqlRepository.Context.KBActiveDbContext>("KB_postgresql");
-                    services.AddPostgreSqlRepository();
-                }
-                else
-                {
-                    // add dapper SqlServer
-                    services.AddDapperSqlServer<SqlServerRepository.Context.KBActiveDbContext>("KB");
-                    services.AddSqlServerRepository();
-                }               
-            }
 
             // add MongoDB
             services.AddMongoDbRepository();
@@ -120,6 +109,8 @@ namespace KB.WebApi
                 app.UseExceptionHandler(ExceptionHandler.Default);  // handle exception
             }
 
+            app.UseHttpsRedirection();
+
             diagnosticListener.AddToolkitDiagnositcs();  // 添加诊断
 
             env.ConfigureNLog("nlog.config");
@@ -128,16 +119,20 @@ namespace KB.WebApi
                 options.HasRequestHeaders = true;
                 options.HasResponseHeaders = true;
             });
-            //添加调用链监控（APM)            
-            app.AddZipKin(loggerFactory, Configuration["ZipKin:ApplicationId"], Configuration["ZipKin:ZipKinServer"]);
+
             // 保证在 Mvc 之前调用
             app.UseHttpContextGlobal()
-               .UseToolTrace();
+               .UseToolTrace();      
+            app.UseRouting();
 
-            app.UseMvc();
-            
-            // add service discovery
-            //app.UseDiscoveryClient();
+            app.UseAuthentication();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+            //app.UseMvc();
+
         }
     }
 }
