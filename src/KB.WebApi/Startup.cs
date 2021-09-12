@@ -94,8 +94,8 @@ namespace KB.WebApi
             services.AddMongoDB();
 
             // add automapper
-            services.AddAutoMapper();
-            services.AddApplicationService();
+            //services.AddAutoMapper();
+            //services.AddApplicationService();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, DiagnosticListener diagnosticListener)
@@ -113,7 +113,7 @@ namespace KB.WebApi
 
             diagnosticListener.AddToolkitDiagnositcs();  // 添加诊断
 
-            env.ConfigureNLog("nlog.config");
+            //env.ConfigureNLog("nlog.config");
             loggerFactory.AddDefaultNLog(options =>
             {
                 options.HasRequestHeaders = true;

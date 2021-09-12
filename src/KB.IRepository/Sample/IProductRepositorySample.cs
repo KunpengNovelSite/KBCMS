@@ -9,5 +9,6 @@ namespace KB.IRepository.Sample
     /// </summary>
     public interface IProductRepositorySample : ICasualDapperRepository
     {
+
     }
 }
